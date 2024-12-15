@@ -236,47 +236,45 @@
         }
         
         // Update the visual display
-        function updateDisplay() {
-            const cells = document.getElementsByClassName('cell');
-            for (let i = 0; i < 4; i++) {
-                for (let j = 0; j < 4; j++) {
-                    const value = grid[i][j];
-                    const cell = cells[i * 4 + j];
+        function updateDisplay(oldPositions = null) {
+    const cells = document.getElementsByClassName('cell');
+    for (let i = 0; i < 4; i++) {
+        for (let j = 0; j < 4; j++) {
+            const value = grid[i][j];
+            const cell = cells[i * 4 + j];
+            
+            // Remove old classes but keep tile values
+            cell.className = 'cell';
+            cell.textContent = value || '';
+            
+            if (value) {
+                cell.classList.add(`tile-${value}`);
+                
+                // Only handle animations if oldPositions is provided
+                if (oldPositions) {
+                    const oldKey = Object.keys(oldPositions).find(key => 
+                        key.startsWith(value.toString()) && 
+                        !key.endsWith(`${i}-${j}`)
+                    );
                     
-                    // Remove old classes
-                    cell.className = 'cell';
-                    
-                    if (value) {
-                        cell.classList.add(`tile-${value}`);
+                    if (oldKey) {
+                        const oldPos = oldPositions[oldKey];
+                        const dx = j - oldPos.col;
+                        const dy = i - oldPos.row;
                         
-                        // Check if this tile moved from a previous position
-                        const oldKey = Object.keys(oldPositions).find(key => 
-                            key.startsWith(value.toString()) && 
-                            !key.endsWith(`${i}-${j}`)
-                        );
-                        
-                        if (oldKey) {
-                            const oldPos = oldPositions[oldKey];
-                            const dx = j - oldPos.col;
-                            const dy = i - oldPos.row;
-                            
-                            if (dx < 0) cell.classList.add('sliding-left');
-                            else if (dx > 0) cell.classList.add('sliding-right');
-                            else if (dy < 0) cell.classList.add('sliding-up');
-                            else if (dy > 0) cell.classList.add('sliding-down');
-                        }
+                        if (dx < 0) cell.classList.add('sliding-left');
+                        else if (dx > 0) cell.classList.add('sliding-right');
+                        else if (dy < 0) cell.classList.add('sliding-up');
+                        else if (dy > 0) cell.classList.add('sliding-down');
                     }
-                    
-                    cell.textContent = value || '';
                 }
             }
-            
-            document.getElementById('score').textContent = score;
-            document.getElementById('best-score').textContent = bestScore;
-            
-            // Store current grid state
-            previousGrid = grid.map(row => [...row]);
         }
+    }
+    
+    document.getElementById('score').textContent = score;
+    document.getElementById('best-score').textContent = bestScore;
+}
         
         function moveTiles(direction) {
             let moved = false;
