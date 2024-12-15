@@ -63,7 +63,7 @@
             background: var(--grid-color);
             border-radius: 6px;
             padding: var(--cell-gap);
-            position: relative;
+            position: relative;  /* This is crucial for absolute positioning of tiles */
             width: var(--grid-size);
             height: var(--grid-size);
             display: grid;
@@ -82,7 +82,7 @@
         .tile {
             width: var(--cell-size);
             height: var(--cell-size);
-            position: absolute;
+            position: absolute;  /* Make sure this is present */
             background: var(--tile-color);
             border-radius: 3px;
             font-size: 35px;
@@ -92,6 +92,7 @@
             align-items: center;
             color: var(--text-color);
             transition: all 0.15s ease-in-out;
+            transform: translate(0, 0); /* Add this to ensure proper positioning */
         }
 
         .tile[data-value="2"] { background: #eee4da; }
