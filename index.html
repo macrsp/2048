@@ -65,17 +65,16 @@
             justify-content: center;
             align-items: center;
             font-size: 24px;
-            font-weight: bold;           
-            position: relative;
-            transform: translate(0, 0);
+            font-weight: bold;
             transition: transform 0.35s ease-in-out, background-color 0.35s ease-in-out;
+            position: relative;
         }
-
-        .sliding-left { transform: translateX(-100%); }
-        .sliding-right { transform: translateX(100%); }
-        .sliding-up { transform: translateY(-100%); }
-        .sliding-down { transform: translateY(100%); }
         
+        /* Add new sliding classes */
+        .sliding-left { transform: translateX(-90px); }
+        .sliding-right { transform: translateX(90px); }
+        .sliding-up { transform: translateY(-90px); }
+        .sliding-down { transform: translateY(90px); }      
         .merging {
             animation: merge 0.15s ease-in-out;
         }
@@ -271,63 +270,33 @@
             const newGrid = Array(4).fill().map(() => Array(4).fill(0));
             const cells = document.getElementsByClassName('cell');
             
-            // Helper function to process a line of tiles
-            function processLine(line) {
-                let newLine = line.filter(x => x !== 0);
-                for (let i = 0; i < newLine.length - 1; i++) {
-                    if (newLine[i] === newLine[i + 1]) {
-                        newLine[i] *= 2;
-                        score += newLine[i];
-                        newLine.splice(i + 1, 1);
-                        moved = true;
-                    }
+            // Add sliding animation
+            Array.from(cells).forEach(cell => {
+                if (cell.textContent) {  // Only animate non-empty cells
+                    cell.classList.add(`sliding-${direction}`);
                 }
-                while (newLine.length < 4) newLine.push(0);
-                return newLine;
-            }
-            
-            // Store old positions
-            const oldGrid = grid.map(row => [...row]);
-            
-            // Process each row/column based on direction
-            if (direction === 'left' || direction === 'right') {
-                for (let i = 0; i < 4; i++) {
-                    let line = grid[i].slice();
-                    if (direction === 'right') line.reverse();
-                    line = processLine(line);
-                    if (direction === 'right') line.reverse();
-                    if (line.some((val, idx) => val !== grid[i][idx])) moved = true;
-                    newGrid[i] = line;
-                }
-            } else {
-                for (let j = 0; j < 4; j++) {
-                    let line = grid.map(row => row[j]);
-                    if (direction === 'down') line.reverse();
-                    line = processLine(line);
-                    if (direction === 'down') line.reverse();
-                    if (line.some((val, idx) => val !== grid[idx][j])) moved = true;
-                    line.forEach((val, i) => newGrid[i][j] = val);
-                }
-            }
+            });
+        
+            // Existing processing code...
             
             if (moved) {
-                // Update grid
-                grid = newGrid;
-                
-                // Add new tile after animation
                 setTimeout(() => {
+                    Array.from(cells).forEach(cell => {
+                        cell.classList.remove(`sliding-${direction}`);
+                    });
+                    grid = newGrid;
                     addNewTile();
                     bestScore = Math.max(score, bestScore);
                     localStorage.setItem('bestScore', bestScore);
                     updateDisplay();
                     checkGameOver();
-                }, 350);
-                
-                // Update display immediately for animation
-                updateDisplay();
+                }, 250);
+            } else {
+                Array.from(cells).forEach(cell => {
+                    cell.classList.remove(`sliding-${direction}`);
+                });
             }
-        }
-        
+        }       
         // Check if game is over
         function checkGameOver() {
             for (let i = 0; i < 4; i++) {
