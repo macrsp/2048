@@ -128,6 +128,50 @@
             font-size: 18px;
             margin-top: 20px;
         }
+        /* Add to the existing style section */
+        html {
+            /* Prevent bounce scrolling on iOS */
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            /* Prevent text selection and unwanted gestures */
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+            overscroll-behavior: none;
+            /* Take full height on iOS */
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+        }
+        
+        /* Adjust grid size for different iOS devices */
+        @media (max-width: 430px) {
+            .cell {
+                width: 65px;
+                height: 65px;
+                font-size: 20px;
+            }
+            
+            .tile-128, .tile-256, .tile-512 {
+                font-size: 18px;
+            }
+            
+            .tile-1024, .tile-2048 {
+                font-size: 16px;
+            }
+        }
+        
+        @media (max-width: 375px) {
+            .cell {
+                width: 55px;
+                height: 55px;
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
