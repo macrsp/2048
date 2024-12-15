@@ -220,44 +220,15 @@
         // Update the visual display
         function updateDisplay() {
             const cells = document.getElementsByClassName('cell');
-            const oldPositions = new Map();
-            
-            // Store old positions
-            for (let i = 0; i < 4; i++) {
-                for (let j = 0; j < 4; j++) {
-                    const value = grid[i][j];
-                    if (value) {
-                        oldPositions.set(`${value}-${i}-${j}`, {i, j});
-                    }
-                }
-            }
-            
-            // Update cells with animations
             for (let i = 0; i < 4; i++) {
                 for (let j = 0; j < 4; j++) {
                     const value = grid[i][j];
                     const cell = cells[i * 4 + j];
-                    const oldCell = cell.innerHTML;
-                    
                     cell.className = `cell${value ? ` tile-${value}` : ''}`;
-                    
-                    if (value) {
-                        // Check if it's a new tile
-                        if (!oldCell) {
-                            cell.classList.add('tile-new');
-                        }
-                        // Check if it's a merged tile
-                        else if (parseInt(oldCell) * 2 === value) {
-                            cell.classList.add('tile-merge');
-                        }
-                        
-                        cell.textContent = value;
-                    } else {
-                        cell.textContent = '';
-                    }
+                    cell.textContent = value || '';
                 }
             }
-    
+            
             document.getElementById('score').textContent = score;
             document.getElementById('best-score').textContent = bestScore;
         }
@@ -305,13 +276,11 @@
             
             if (moved) {
                 grid = newGrid;
-                setTimeout(() => {
-                    addNewTile();
-                    bestScore = Math.max(score, bestScore);
-                    localStorage.setItem('bestScore', bestScore);
-                    updateDisplay();
-                    checkGameOver();
-                }, 100); // Wait for movement animation to complete
+                addNewTile();
+                bestScore = Math.max(score, bestScore);
+                localStorage.setItem('bestScore', bestScore);
+                updateDisplay();
+                checkGameOver();
             }
         }
         
