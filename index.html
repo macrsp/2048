@@ -67,7 +67,7 @@
             font-size: 24px;
             font-weight: bold;           
             position: relative;
-            transform: scale(1);
+            transform: translate(0, 0);
             transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out;
         }
 
@@ -85,7 +85,10 @@
             50% { transform: scale(1.2); }
             100% { transform: scale(1); }
         }
-
+        
+        .merged {
+            animation: merge 0.15s ease-in-out;
+        }
         
         .tile-2 { background: #eee4da; color: #776e65; }
         .tile-4 { background: #ede0c8; color: #776e65; }
@@ -239,58 +242,52 @@
                 for (let j = 0; j < 4; j++) {
                     const value = grid[i][j];
                     const cell = cells[i * 4 + j];
-                    cell.className = `cell${value ? ` tile-${value}` : ''}`;
+                    
+                    // Remove old classes
+                    cell.className = 'cell';
+                    
+                    // Add new value class
+                    if (value) {
+                        cell.classList.add(`tile-${value}`);
+                        // Add merge animation if value doubled
+                        if (value > 4 && grid[i][j] !== previousGrid?.[i]?.[j]) {
+                            cell.classList.add('merged');
+                        }
+                    }
+                    
                     cell.textContent = value || '';
                 }
             }
             
             document.getElementById('score').textContent = score;
             document.getElementById('best-score').textContent = bestScore;
+            
+            // Store current grid state
+            previousGrid = grid.map(row => [...row]);
         }
         
-        // Move tiles in a direction
         function moveTiles(direction) {
             let moved = false;
+            const newGrid = Array(4).fill().map(() => Array(4).fill(0));
             const cells = document.getElementsByClassName('cell');
             
-            // Add sliding animation classes
-            cells.forEach(cell => {
-                cell.classList.add(`sliding-${direction}`);
-            });
-            
-            // Remove animation classes after transition
-            setTimeout(() => {
-                cells.forEach(cell => {
-                    cell.classList.remove(`sliding-${direction}`);
-                });
-            }, 150);
-            const newGrid = Array(4).fill().map(() => Array(4).fill(0));
-            
             // Helper function to process a line of tiles
-            function processLine(line, i, direction) {
+            function processLine(line) {
                 let newLine = line.filter(x => x !== 0);
-                const cells = document.getElementsByClassName('cell');
-                
-                for (let j = 0; j < newLine.length - 1; j++) {
-                    if (newLine[j] === newLine[j + 1]) {
-                        // Get cell elements involved in merge
-                        let cellIndex = direction === 'left' || direction === 'right' ? 
-                            i * 4 + j : j * 4 + i;
-                        let cell = cells[cellIndex];
-                        
-                        // Add merge animation
-                        cell.classList.add('merging');
-                        setTimeout(() => cell.classList.remove('merging'), 150);
-                        
-                        newLine[j] *= 2;
-                        score += newLine[j];
-                        newLine.splice(j + 1, 1);
+                for (let i = 0; i < newLine.length - 1; i++) {
+                    if (newLine[i] === newLine[i + 1]) {
+                        newLine[i] *= 2;
+                        score += newLine[i];
+                        newLine.splice(i + 1, 1);
                         moved = true;
                     }
                 }
                 while (newLine.length < 4) newLine.push(0);
                 return newLine;
             }
+            
+            // Store old positions
+            const oldGrid = grid.map(row => [...row]);
             
             // Process each row/column based on direction
             if (direction === 'left' || direction === 'right') {
@@ -314,12 +311,20 @@
             }
             
             if (moved) {
+                // Update grid
                 grid = newGrid;
-                addNewTile();
-                bestScore = Math.max(score, bestScore);
-                localStorage.setItem('bestScore', bestScore);
+                
+                // Add new tile after animation
+                setTimeout(() => {
+                    addNewTile();
+                    bestScore = Math.max(score, bestScore);
+                    localStorage.setItem('bestScore', bestScore);
+                    updateDisplay();
+                    checkGameOver();
+                }, 150);
+                
+                // Update display immediately for animation
                 updateDisplay();
-                checkGameOver();
             }
         }
         
