@@ -90,19 +90,6 @@
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
-
-        .tile-inner {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: inherit;
-            border-radius: inherit;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            transition: transform 100ms ease-in-out;
-            z-index: 2;
-        }
         
         .tile-2 { background: #eee4da; color: #776e65; }
         .tile-4 { background: #ede0c8; color: #776e65; }
@@ -248,56 +235,54 @@
                 updateDisplay();
             }
         }
-        function calculateNextPosition(fromCell, toCell) {
-            const fromRect = fromCell.getBoundingClientRect();
-            const toRect = toCell.getBoundingClientRect();
-            return {
-                x: toRect.left - fromRect.left,
-                y: toRect.top - fromRect.top
-            };
-        }
+        
         // Update the visual display
         function updateDisplay() {
             const cells = document.getElementsByClassName('cell');
+            const oldPositions = new Map();
             
+            // Store old positions
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    const value = grid[i][j];
+                    if (value) {
+                        oldPositions.set(`${value}-${i}-${j}`, {i, j});
+                    }
+                }
+            }
+            
+            // Update cells with animations
             for (let i = 0; i < 4; i++) {
                 for (let j = 0; j < 4; j++) {
                     const value = grid[i][j];
                     const cell = cells[i * 4 + j];
+                    const oldCell = cell.innerHTML;
                     
-                    // Clear the cell's content first
-                    cell.className = 'cell';
+                    cell.className = `cell${value ? ` tile-${value}` : ''}`;
                     
                     if (value) {
-                        // Add the tile class to the cell itself
-                        cell.className = `cell tile-${value}`;
+                        // Check if it's a new tile
+                        if (!oldCell) {
+                            cell.classList.add('tile-new');
+                        }
+                        // Check if it's a merged tile
+                        else if (parseInt(oldCell) * 2 === value) {
+                            cell.classList.add('tile-merge');
+                        }
+                        
                         cell.textContent = value;
                     } else {
                         cell.textContent = '';
                     }
                 }
             }
-        
+    
             document.getElementById('score').textContent = score;
             document.getElementById('best-score').textContent = bestScore;
         }
         
-        
         // Move tiles in a direction
         function moveTiles(direction) {
-            const oldPositions = new Map();
-            for (let i = 0; i < 4; i++) {
-                for (let j = 0; j < 4; j++) {
-                    if (grid[i][j] !== 0) {
-                        const cell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
-                        const tile = cell.querySelector('.tile-inner');
-                        if (tile) {
-                            oldPositions.set(`${i}-${j}`, { tile, fromCell: cell });
-                        }
-                    }
-                }
-            }
-            
             let moved = false;
             const newGrid = Array(4).fill().map(() => Array(4).fill(0));
             
@@ -337,36 +322,15 @@
                 }
             }
             
-            // Inside moveTiles function
             if (moved) {
                 grid = newGrid;
-                
-                // Add animation code here
-                oldPositions.forEach((data, key) => {
-                    const [oldRow, oldCol] = key.split('-').map(Number);
-                    let found = false;
-                    
-                    // Find where this tile moved to
-                    for (let i = 0; i < 4 && !found; i++) {
-                        for (let j = 0; j < 4 && !found; j++) {
-                            if (grid[i][j] !== 0) {
-                                const newCell = document.querySelector(`[data-row="${i}"][data-col="${j}"]`);
-                                const pos = calculateNextPosition(data.fromCell, newCell);
-                                data.tile.style.transform = `translate(${pos.x}px, ${pos.y}px)`;
-                                found = true;
-                            }
-                        }
-                    }
-                });
-                
-                // Existing setTimeout
                 setTimeout(() => {
                     addNewTile();
                     bestScore = Math.max(score, bestScore);
                     localStorage.setItem('bestScore', bestScore);
                     updateDisplay();
                     checkGameOver();
-                }, 100);
+                }, 100); // Wait for movement animation to complete
             }
         }
         
