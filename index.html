@@ -68,7 +68,7 @@
             font-weight: bold;           
             position: relative;
             transform: translate(0, 0);
-            transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out;
+            transition: transform 0.35s ease-in-out, background-color 0.35s ease-in-out;
         }
 
         .sliding-left { transform: translateX(-100%); }
@@ -321,7 +321,7 @@
                     localStorage.setItem('bestScore', bestScore);
                     updateDisplay();
                     checkGameOver();
-                }, 150);
+                }, 350);
                 
                 // Update display immediately for animation
                 updateDisplay();
