@@ -71,25 +71,6 @@
             transform: scale(1);
         }
 
-        /* Add these new animation classes */
-        .tile-new {
-            animation: pop 200ms ease-in-out;
-        }
-        
-        .tile-merge {
-            animation: pop 200ms ease-in-out;
-        }
-        
-        .tile-moving {
-            transition: transform 100ms ease-in-out;
-            z-index: 2;
-        }
-        
-        @keyframes pop {
-            0% { transform: scale(0.8); }
-            50% { transform: scale(1.1); }
-            100% { transform: scale(1); }
-        }
         
         .tile-2 { background: #eee4da; color: #776e65; }
         .tile-4 { background: #ede0c8; color: #776e65; }
