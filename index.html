@@ -234,6 +234,8 @@
             }
 
             move(direction) {
+                // Add at the start of the move method:
+                const oldScore = this.score;
                 if (this.gameOver) return;
 
                 const oldGrid = JSON.stringify(this.grid);
@@ -264,7 +266,8 @@
                     this.grid = this.rotateGrid();
                 }
 
-                if (JSON.stringify(this.grid) !== oldGrid) {
+                
+                if (JSON.stringify(this.grid) !== oldGrid || this.score !== oldScore) {
                     moved = true;
                 }
 
@@ -278,6 +281,7 @@
 
                 this.checkGameOver();
                 this.updateDisplay();
+                
             }
 
             rotateGrid() {
