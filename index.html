@@ -264,20 +264,16 @@
                 for (let j = 0; j < 4; j++) {
                     const value = grid[i][j];
                     const cell = cells[i * 4 + j];
-                    const existingTile = cell.querySelector('.tile-inner');
+                    
+                    // Clear the cell's content first
+                    cell.className = 'cell';
                     
                     if (value) {
-                        if (!existingTile) {
-                            const tile = document.createElement('div');
-                            tile.className = `tile-inner tile-${value}${!oldCell ? ' tile-new' : ''}`;
-                            tile.textContent = value;
-                            cell.appendChild(tile);
-                        } else {
-                            existingTile.className = `tile-inner tile-${value}`;
-                            existingTile.textContent = value;
-                        }
-                    } else if (existingTile) {
-                        cell.removeChild(existingTile);
+                        // Add the tile class to the cell itself
+                        cell.className = `cell tile-${value}`;
+                        cell.textContent = value;
+                    } else {
+                        cell.textContent = '';
                     }
                 }
             }
