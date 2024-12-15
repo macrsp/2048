@@ -54,6 +54,7 @@
             padding: 10px;
             border-radius: 5px;
             touch-action: none;
+            position: relative;
         }
         
         .cell {
@@ -66,9 +67,9 @@
             align-items: center;
             font-size: 24px;
             font-weight: bold;           
-            position: relative;
+            position: absolute;
             transform: translate(0, 0);
-            transition: transform 0.35s ease-in-out, background-color 0.35s ease-in-out;
+            transition: all 0.35s ease-in-out;
         }
 
         .sliding-left { transform: translateX(-100%); }
@@ -150,17 +151,14 @@
         /* Adjust grid size for different iOS devices */
         @media (max-width: 430px) {
             .cell {
+                /* Update positions for smaller cells */
                 width: 65px;
                 height: 65px;
-                font-size: 20px;
             }
             
-            .tile-128, .tile-256, .tile-512 {
-                font-size: 18px;
-            }
-            
-            .tile-1024, .tile-2048 {
-                font-size: 16px;
+            #grid {
+                gap: 8px;
+                padding: 8px;
             }
         }
         
@@ -168,7 +166,11 @@
             .cell {
                 width: 55px;
                 height: 55px;
-                font-size: 18px;
+            }
+            
+            #grid {
+                gap: 6px;
+                padding: 6px;
             }
         }
     </style>
@@ -234,36 +236,41 @@
                 updateDisplay();
             }
         }
-        
+        function getPositionFromCoords(i, j) {
+            return {
+                left: j * (80 + 10) + 10 + 'px',  // 80px cell width + 10px gap
+                top: i * (80 + 10) + 10 + 'px'    // 80px cell height + 10px gap
+            };
+        }
         // Update the visual display
         function updateDisplay() {
             const cells = document.getElementsByClassName('cell');
+            const gridElement = document.getElementById('grid');
+            
+            // Clear grid
+            gridElement.innerHTML = '';
+            
+            // Create cells
             for (let i = 0; i < 4; i++) {
                 for (let j = 0; j < 4; j++) {
                     const value = grid[i][j];
-                    const cell = cells[i * 4 + j];
-                    
-                    // Remove old classes
-                    cell.className = 'cell';
-                    
-                    // Add new value class
                     if (value) {
-                        cell.classList.add(`tile-${value}`);
-                        // Add merge animation if value doubled
-                        if (value > 4 && grid[i][j] !== previousGrid?.[i]?.[j]) {
-                            cell.classList.add('merged');
-                        }
+                        const cell = document.createElement('div');
+                        cell.className = `cell${value ? ` tile-${value}` : ''}`;
+                        cell.textContent = value;
+                        
+                        // Set position
+                        const position = getPositionFromCoords(i, j);
+                        cell.style.left = position.left;
+                        cell.style.top = position.top;
+                        
+                        gridElement.appendChild(cell);
                     }
-                    
-                    cell.textContent = value || '';
                 }
             }
             
             document.getElementById('score').textContent = score;
             document.getElementById('best-score').textContent = bestScore;
-            
-            // Store current grid state
-            previousGrid = grid.map(row => [...row]);
         }
         
         function moveTiles(direction) {
