@@ -400,6 +400,49 @@
         
         // Start the game
         newGame();
+
+        // iOS-specific setup
+    document.addEventListener('gesturestart', function(e) {
+        e.preventDefault();
+    });
+    
+    // Handle PWA installation
+    if (window.navigator.standalone) {
+        document.body.classList.add('ios-pwa');
+    }
+    
+    // Prevent elastic scrolling
+    document.body.addEventListener('touchmove', function(e) {
+        if (e.target.closest('.grid')) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // Fix viewport height for iOS
+    function fixViewportHeight() {
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    
+    window.addEventListener('resize', fixViewportHeight);
+    fixViewportHeight();
+    
+    // Add iOS haptic feedback for moves
+    function addHapticFeedback() {
+        if ('vibrate' in navigator) {
+            navigator.vibrate(10);
+        }
+    }
+    
+    // Modify your moveTiles function to add haptic feedback
+    const originalMoveTiles = moveTiles;
+    moveTiles = function(direction) {
+        const moved = originalMoveTiles(direction);
+        if (moved) {
+            addHapticFeedback();
+        }
+        return moved;
+    };
     </script>
 </body>
 </html>
