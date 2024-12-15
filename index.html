@@ -90,6 +90,19 @@
             50% { transform: scale(1.1); }
             100% { transform: scale(1); }
         }
+
+        .tile-inner {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            border-radius: inherit;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 100ms ease-in-out;
+            z-index: 2;
+        }
         
         .tile-2 { background: #eee4da; color: #776e65; }
         .tile-4 { background: #ede0c8; color: #776e65; }
