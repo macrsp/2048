@@ -246,12 +246,24 @@
                     // Remove old classes
                     cell.className = 'cell';
                     
-                    // Add new value class
                     if (value) {
                         cell.classList.add(`tile-${value}`);
-                        // Add merge animation if value doubled
-                        if (value > 4 && grid[i][j] !== previousGrid?.[i]?.[j]) {
-                            cell.classList.add('merged');
+                        
+                        // Check if this tile moved from a previous position
+                        const oldKey = Object.keys(oldPositions).find(key => 
+                            key.startsWith(value.toString()) && 
+                            !key.endsWith(`${i}-${j}`)
+                        );
+                        
+                        if (oldKey) {
+                            const oldPos = oldPositions[oldKey];
+                            const dx = j - oldPos.col;
+                            const dy = i - oldPos.row;
+                            
+                            if (dx < 0) cell.classList.add('sliding-left');
+                            else if (dx > 0) cell.classList.add('sliding-right');
+                            else if (dy < 0) cell.classList.add('sliding-up');
+                            else if (dy > 0) cell.classList.add('sliding-down');
                         }
                     }
                     
@@ -269,8 +281,17 @@
         function moveTiles(direction) {
             let moved = false;
             const newGrid = Array(4).fill().map(() => Array(4).fill(0));
-            const cells = document.getElementsByClassName('cell');
             
+            // Store original positions for animation
+            const oldPositions = {};
+            for (let i = 0; i < 4; i++) {
+                for (let j = 0; j < 4; j++) {
+                    if (grid[i][j] !== 0) {
+                        oldPositions[`${grid[i][j]}-${i}-${j}`] = { row: i, col: j };
+                    }
+                }
+            }
+        
             // Helper function to process a line of tiles
             function processLine(line) {
                 let newLine = line.filter(x => x !== 0);
@@ -285,10 +306,7 @@
                 while (newLine.length < 4) newLine.push(0);
                 return newLine;
             }
-            
-            // Store old positions
-            const oldGrid = grid.map(row => [...row]);
-            
+        
             // Process each row/column based on direction
             if (direction === 'left' || direction === 'right') {
                 for (let i = 0; i < 4; i++) {
@@ -309,23 +327,32 @@
                     line.forEach((val, i) => newGrid[i][j] = val);
                 }
             }
-            
+        
             if (moved) {
-                // Update grid
+                // Update grid immediately but keep old positions for animation
+                const previousGrid = grid.map(row => [...row]);
                 grid = newGrid;
-                
-                // Add new tile after animation
+        
+                // Trigger animations through updateDisplay
+                updateDisplay(oldPositions);
+        
+                // Add new tile and update score after animation
                 setTimeout(() => {
+                    // Remove sliding classes
+                    const cells = document.getElementsByClassName('cell');
+                    Array.from(cells).forEach(cell => {
+                        cell.classList.remove('sliding-left', 'sliding-right', 'sliding-up', 'sliding-down');
+                    });
+        
                     addNewTile();
                     bestScore = Math.max(score, bestScore);
                     localStorage.setItem('bestScore', bestScore);
                     updateDisplay();
                     checkGameOver();
-                }, 350);
-                
-                // Update display immediately for animation
-                updateDisplay();
+                }, 150); // Match this with CSS transition duration
             }
+        
+            return moved;
         }
         
         // Check if game is over
