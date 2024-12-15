@@ -65,16 +65,17 @@
             justify-content: center;
             align-items: center;
             font-size: 24px;
-            font-weight: bold;
-            transition: transform 0.35s ease-in-out, background-color 0.35s ease-in-out;
+            font-weight: bold;           
             position: relative;
+            transform: translate(0, 0);
+            transition: transform 0.35s ease-in-out, background-color 0.35s ease-in-out;
         }
+
+        .sliding-left { transform: translateX(-100%); }
+        .sliding-right { transform: translateX(100%); }
+        .sliding-up { transform: translateY(-100%); }
+        .sliding-down { transform: translateY(100%); }
         
-        /* Add new sliding classes */
-        .sliding-left { transform: translateX(-90px); }
-        .sliding-right { transform: translateX(90px); }
-        .sliding-up { transform: translateY(-90px); }
-        .sliding-down { transform: translateY(90px); }      
         .merging {
             animation: merge 0.15s ease-in-out;
         }
@@ -268,6 +269,25 @@
         function moveTiles(direction) {
             let moved = false;
             const newGrid = Array(4).fill().map(() => Array(4).fill(0));
+            const cells = document.getElementsByClassName('cell');
+            
+            // Helper function to process a line of tiles
+            function processLine(line) {
+                let newLine = line.filter(x => x !== 0);
+                for (let i = 0; i < newLine.length - 1; i++) {
+                    if (newLine[i] === newLine[i + 1]) {
+                        newLine[i] *= 2;
+                        score += newLine[i];
+                        newLine.splice(i + 1, 1);
+                        moved = true;
+                    }
+                }
+                while (newLine.length < 4) newLine.push(0);
+                return newLine;
+            }
+            
+            // Store old positions
+            const oldGrid = grid.map(row => [...row]);
             
             // Process each row/column based on direction
             if (direction === 'left' || direction === 'right') {
@@ -291,28 +311,23 @@
             }
             
             if (moved) {
-                const cells = document.getElementsByClassName('cell');
-                Array.from(cells).forEach(cell => {
-                    if (cell.textContent) {
-                        cell.classList.add(`sliding-${direction}`);
-                    }
-                });
+                // Update grid
+                grid = newGrid;
                 
+                // Add new tile after animation
                 setTimeout(() => {
-                    Array.from(cells).forEach(cell => {
-                        cell.classList.remove(`sliding-${direction}`);
-                    });
-                    grid = newGrid;
                     addNewTile();
                     bestScore = Math.max(score, bestScore);
                     localStorage.setItem('bestScore', bestScore);
                     updateDisplay();
                     checkGameOver();
-                }, 250);
+                }, 350);
+                
+                // Update display immediately for animation
+                updateDisplay();
             }
-            
-            return moved;
-        }    
+        }
+        
         // Check if game is over
         function checkGameOver() {
             for (let i = 0; i < 4; i++) {
