@@ -280,11 +280,13 @@
             
             if (moved) {
                 grid = newGrid;
-                addNewTile();
-                bestScore = Math.max(score, bestScore);
-                localStorage.setItem('bestScore', bestScore);
-                updateDisplay();
-                checkGameOver();
+                setTimeout(() => {
+                    addNewTile();
+                    bestScore = Math.max(score, bestScore);
+                    localStorage.setItem('bestScore', bestScore);
+                    updateDisplay();
+                    checkGameOver();
+                }, 100); // Wait for movement animation to complete
             }
         }
         
