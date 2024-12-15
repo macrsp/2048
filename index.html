@@ -268,18 +268,36 @@
         function moveTiles(direction) {
             let moved = false;
             const newGrid = Array(4).fill().map(() => Array(4).fill(0));
-            const cells = document.getElementsByClassName('cell');
             
-            // Add sliding animation
-            Array.from(cells).forEach(cell => {
-                if (cell.textContent) {  // Only animate non-empty cells
-                    cell.classList.add(`sliding-${direction}`);
+            // Process each row/column based on direction
+            if (direction === 'left' || direction === 'right') {
+                for (let i = 0; i < 4; i++) {
+                    let line = grid[i].slice();
+                    if (direction === 'right') line.reverse();
+                    line = processLine(line);
+                    if (direction === 'right') line.reverse();
+                    if (line.some((val, idx) => val !== grid[i][idx])) moved = true;
+                    newGrid[i] = line;
                 }
-            });
-        
-            // Existing processing code...
+            } else {
+                for (let j = 0; j < 4; j++) {
+                    let line = grid.map(row => row[j]);
+                    if (direction === 'down') line.reverse();
+                    line = processLine(line);
+                    if (direction === 'down') line.reverse();
+                    if (line.some((val, idx) => val !== grid[idx][j])) moved = true;
+                    line.forEach((val, i) => newGrid[i][j] = val);
+                }
+            }
             
             if (moved) {
+                const cells = document.getElementsByClassName('cell');
+                Array.from(cells).forEach(cell => {
+                    if (cell.textContent) {
+                        cell.classList.add(`sliding-${direction}`);
+                    }
+                });
+                
                 setTimeout(() => {
                     Array.from(cells).forEach(cell => {
                         cell.classList.remove(`sliding-${direction}`);
@@ -291,12 +309,10 @@
                     updateDisplay();
                     checkGameOver();
                 }, 250);
-            } else {
-                Array.from(cells).forEach(cell => {
-                    cell.classList.remove(`sliding-${direction}`);
-                });
             }
-        }       
+            
+            return moved;
+        }    
         // Check if game is over
         function checkGameOver() {
             for (let i = 0; i < 4; i++) {
