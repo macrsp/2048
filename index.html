@@ -223,13 +223,13 @@
                             tile.className = 'tile';
                             tile.setAttribute('data-value', this.grid[i][j]);
                             tile.textContent = this.grid[i][j];
-                            tile.style.left = (j * (cellSize + gap) + gap) + 'px';
-                            tile.style.top = (i * (cellSize + gap) + gap) + 'px';
+                            // Fix the positioning calculation by adding the gap only once for each dimension
+                            tile.style.left = `${j * (cellSize + gap) + gap}px`;
+                            tile.style.top = `${i * (cellSize + gap) + gap}px`;
                             gridElement.appendChild(tile);
                         }
                     }
                 }
-
                 document.getElementById('score').textContent = this.score;
                 document.getElementById('best').textContent = this.best;
                 document.getElementById('gameOver').style.display = this.gameOver ? 'flex' : 'none';
