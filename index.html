@@ -65,10 +65,25 @@
             justify-content: center;
             align-items: center;
             font-size: 24px;
-            font-weight: bold;
-            transition: all 0.15s ease;
+            font-weight: bold;           
             position: relative;
             transform: scale(1);
+            transition: transform 0.15s ease-in-out, background-color 0.15s ease-in-out;
+        }
+
+        .sliding-left { transform: translateX(-100%); }
+        .sliding-right { transform: translateX(100%); }
+        .sliding-up { transform: translateY(-100%); }
+        .sliding-down { transform: translateY(100%); }
+        
+        .merging {
+            animation: merge 0.15s ease-in-out;
+        }
+
+        @keyframes merge {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
         }
 
         
@@ -236,16 +251,40 @@
         // Move tiles in a direction
         function moveTiles(direction) {
             let moved = false;
+            const cells = document.getElementsByClassName('cell');
+            
+            // Add sliding animation classes
+            cells.forEach(cell => {
+                cell.classList.add(`sliding-${direction}`);
+            });
+            
+            // Remove animation classes after transition
+            setTimeout(() => {
+                cells.forEach(cell => {
+                    cell.classList.remove(`sliding-${direction}`);
+                });
+            }, 150);
             const newGrid = Array(4).fill().map(() => Array(4).fill(0));
             
             // Helper function to process a line of tiles
-            function processLine(line) {
+            function processLine(line, i, direction) {
                 let newLine = line.filter(x => x !== 0);
-                for (let i = 0; i < newLine.length - 1; i++) {
-                    if (newLine[i] === newLine[i + 1]) {
-                        newLine[i] *= 2;
-                        score += newLine[i];
-                        newLine.splice(i + 1, 1);
+                const cells = document.getElementsByClassName('cell');
+                
+                for (let j = 0; j < newLine.length - 1; j++) {
+                    if (newLine[j] === newLine[j + 1]) {
+                        // Get cell elements involved in merge
+                        let cellIndex = direction === 'left' || direction === 'right' ? 
+                            i * 4 + j : j * 4 + i;
+                        let cell = cells[cellIndex];
+                        
+                        // Add merge animation
+                        cell.classList.add('merging');
+                        setTimeout(() => cell.classList.remove('merging'), 150);
+                        
+                        newLine[j] *= 2;
+                        score += newLine[j];
+                        newLine.splice(j + 1, 1);
                         moved = true;
                     }
                 }
